@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "prompt-diff"
+version = "0.1.0"
+license = "MIT"
+description = "A lightweight, dependency-free CLI for side-by-side diffs of LLM prompt outputs."
+requires-python = ">=3.10"
+
+[project.scripts]
+prompt-diff = "prompt_diff.cli:main"
