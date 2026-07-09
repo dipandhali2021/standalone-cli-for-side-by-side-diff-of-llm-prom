@@ -11,3 +11,4 @@ requires-python = ">=3.10"
 
 [project.scripts]
 prompt-diff = "prompt_diff.cli:main"
+llm-diff = "standalone_cli_for_side_by_side_diff_of_llm_prom.core:main"
