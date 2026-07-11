@@ -1,3 +1,5 @@
+import argparse
+import sys
 import difflib
 
 
@@ -18,6 +20,7 @@ def compute_diff(old: str, new: str) -> list[tuple[str, str]]:
             if tag in ('+', '-', ' '):
                 result.append((tag, line[2:]))
     return result
+
 
 def format_side_by_side(diff: list[tuple[str, str]]) -> str:
     """Render a diff as a side-by-side string with change markers.
@@ -53,3 +56,30 @@ def format_side_by_side(diff: list[tuple[str, str]]) -> str:
         parts.append(f'{left:<{left_width}} | {right}')
 
     return '\n'.join(parts)
+
+
+def main() -> None:
+    """Entry point for the llm-diff CLI.
+
+    Parses two file paths from command-line arguments, reads their contents,
+    computes a side-by-side diff, and prints it to stdout.
+    """
+    parser = argparse.ArgumentParser(
+        description="Side-by-side diff of files"
+    )
+    parser.add_argument("file1", help="Path to the first (old) file")
+    parser.add_argument("file2", help="Path to the second (new) file")
+    args = parser.parse_args()
+
+    try:
+        with open(args.file1) as f:
+            old = f.read()
+        with open(args.file2) as f:
+            new = f.read()
+    except OSError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    diff = compute_diff(old, new)
+    result = format_side_by_side(diff)
+    print(result)
