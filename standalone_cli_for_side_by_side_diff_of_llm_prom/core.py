@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 import difflib
 
@@ -76,6 +77,18 @@ def main() -> None:
             old = f.read()
         with open(args.file2) as f:
             new = f.read()
+    except FileNotFoundError:
+        if not os.path.exists(args.file1):
+            print(f"Error: file1 '{args.file1}': No such file or directory", file=sys.stderr)
+        else:
+            print(f"Error: file2 '{args.file2}': No such file or directory", file=sys.stderr)
+        sys.exit(1)
+    except PermissionError:
+        if not os.access(args.file1, os.R_OK):
+            print(f"Error: file1 '{args.file1}': Permission denied", file=sys.stderr)
+        else:
+            print(f"Error: file2 '{args.file2}': Permission denied", file=sys.stderr)
+        sys.exit(1)
     except OSError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
