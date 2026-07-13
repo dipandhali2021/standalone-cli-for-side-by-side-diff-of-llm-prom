@@ -187,3 +187,43 @@ class TestFormatSideBySide:
         result = format_side_by_side(diff)
         assert result.count(" x |  x") == 2
         assert result.count(" y |  y") == 1
+
+
+class TestCliIntegration:
+    """Integration tests that invoke the CLI via subprocess."""
+
+    def test_side_by_side_diff_via_subprocess(self):
+        """Invoke llm-diff on two temporary files and verify expected diff lines."""
+        import os
+        import shutil
+        import subprocess
+        import tempfile
+
+        llm_diff = shutil.which("llm-diff")
+        if llm_diff is None:
+            pytest.skip("llm-diff not found in PATH")
+
+        old_content = "hello\nworld\n"
+        new_content = "hello\nthere\n"
+
+        f1 = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
+        f1.write(old_content)
+        f1.close()
+        f2 = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
+        f2.write(new_content)
+        f2.close()
+
+        try:
+            result = subprocess.run(
+                [llm_diff, f1.name, f2.name],
+                capture_output=True,
+                text=True,
+            )
+            assert result.returncode == 0
+            assert "-world" in result.stdout
+            assert "+there" in result.stdout
+            assert "hello" in result.stdout
+            assert " | " in result.stdout
+        finally:
+            os.unlink(f1.name)
+            os.unlink(f2.name)
